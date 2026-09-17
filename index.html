@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>System Alert</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#000;
+    color:#00ff66;
+    font-family:"Courier New",monospace;
+    touch-action:none;
+}
+
+/* BACKGROUND */
+
+#matrix{
+    position:fixed;
+    inset:0;
+    overflow:hidden;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(0,255,80,.09),
+            transparent 48%
+        ),
+        #000;
+}
+
+.char{
+    position:absolute;
+    color:#00ff66;
+    opacity:.15;
+    user-select:none;
+    pointer-events:none;
+
+    text-shadow:
+        0 0 5px #00ff66,
+        0 0 12px #00ff66;
+
+    animation:
+        flicker var(--speed) infinite alternate,
+        drift var(--move) infinite alternate ease-in-out;
+}
+
+@keyframes flicker{
+
+    0%{
+        opacity:.03;
+        filter:blur(1px);
+    }
+
+    25%{
+        opacity:.4;
+        filter:blur(0);
+    }
+
+    50%{
+        opacity:.08;
+    }
+
+    70%{
+        opacity:.7;
+    }
+
+    100%{
+        opacity:.15;
+    }
+}
+
+@keyframes drift{
+
+    from{
+        transform:translate(0,0);
+    }
+
+    to{
+        transform:translate(
+            var(--x),
+            var(--y)
+        );
+    }
+}
+
+
+/* MAIN ALERT */
+
+.alert{
+    position:absolute;
+
+    top:50%;
+    left:50%;
+
+    transform:translate(-50%,-50%);
+
+    width:90%;
+    max-width:680px;
+
+    padding:30px;
+
+    text-align:center;
+
+    z-index:5;
+
+    background:rgba(0,0,0,.74);
+
+    border:1px solid rgba(0,255,100,.25);
+
+    box-shadow:
+        0 0 30px rgba(0,255,80,.08),
+        inset 0 0 30px rgba(0,255,80,.04);
+}
+
+.warning{
+    font-size:12px;
+    letter-spacing:5px;
+    margin-bottom:18px;
+    opacity:.65;
+}
+
+h1{
+    font-size:clamp(30px,7vw,65px);
+    line-height:1.1;
+    letter-spacing:3px;
+
+    color:#00ff66;
+
+    text-shadow:
+        0 0 5px #00ff66,
+        0 0 15px #00ff66,
+        0 0 35px rgba(0,255,80,.7);
+
+    animation:glitch 1.8s infinite;
+}
+
+@keyframes glitch{
+
+    0%,85%,100%{
+        transform:translate(0);
+        opacity:1;
+    }
+
+    86%{
+        transform:translate(-3px,1px);
+        opacity:.7;
+    }
+
+    88%{
+        transform:translate(3px,-1px);
+        opacity:.9;
+    }
+
+    90%{
+        transform:translate(-1px,0);
+        opacity:.6;
+    }
+
+    92%{
+        transform:translate(0);
+        opacity:1;
+    }
+}
+
+
+/* LINE */
+
+.line{
+    width:70%;
+    height:1px;
+
+    margin:25px auto 18px;
+
+    background:#00ff66;
+
+    box-shadow:
+        0 0 10px #00ff66,
+        0 0 20px #00ff66;
+
+    opacity:.5;
+}
+
+
+/* LOADING BAR */
+
+.loading-container{
+    width:75%;
+    max-width:400px;
+
+    height:7px;
+
+    margin:24px auto 0;
+
+    background:#111;
+
+    border:1px solid rgba(0,255,102,.35);
+
+    border-radius:10px;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 0 10px rgba(0,255,102,.15);
+}
+
+.loading-bar{
+    width:0%;
+    height:100%;
+
+    background:#00ff66;
+
+    box-shadow:
+        0 0 8px #00ff66,
+        0 0 18px #00ff66;
+
+    animation:slowLoad 8s ease-in-out infinite;
+}
+
+@keyframes slowLoad{
+
+    0%{
+        width:0%;
+    }
+
+    70%{
+        width:85%;
+    }
+
+    90%{
+        width:95%;
+    }
+
+    100%{
+        width:100%;
+    }
+}
+
+
+/* STATUS */
+
+.status{
+    margin-top:16px;
+
+    font-size:11px;
+
+    letter-spacing:3px;
+
+    opacity:.6;
+}
+
+
+/* CREATED BY */
+
+.created{
+    position:fixed;
+
+    bottom:24px;
+    left:50%;
+
+    transform:translateX(-50%);
+
+    z-index:8;
+
+    font-size:12px;
+
+    letter-spacing:3px;
+
+    color:#00ff66;
+
+    opacity:.55;
+
+    text-shadow:
+        0 0 8px #00ff66;
+}
+
+
+/* BALL */
+
+.ball{
+    position:fixed;
+
+    width:44px;
+    height:44px;
+
+    border-radius:50%;
+
+    background:#00ff66;
+
+    box-shadow:
+        0 0 8px #00ff66,
+        0 0 20px #00ff66,
+        0 0 45px #00ff66,
+        0 0 80px rgba(0,255,80,.7);
+
+    transform:translate(-50%,-50%);
+
+    z-index:20;
+
+    cursor:grab;
+
+    touch-action:none;
+}
+
+.ball:active{
+    cursor:grabbing;
+
+    box-shadow:
+        0 0 12px #00ff66,
+        0 0 30px #00ff66,
+        0 0 65px #00ff66,
+        0 0 100px rgba(0,255,80,.8);
+}
+
+
+/* EDGE FLASH */
+
+.edge-flash{
+    position:fixed;
+
+    inset:0;
+
+    pointer-events:none;
+
+    opacity:0;
+
+    z-index:15;
+}
+
+.edge-flash.flash-left{
+    border-left:4px solid #00ff66;
+    opacity:.8;
+}
+
+.edge-flash.flash-right{
+    border-right:4px solid #00ff66;
+    opacity:.8;
+}
+
+.edge-flash.flash-top{
+    border-top:4px solid #00ff66;
+    opacity:.8;
+}
+
+.edge-flash.flash-bottom{
+    border-bottom:4px solid #00ff66;
+    opacity:.8;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- RANDOM GREEN BACKGROUND -->
+<div id="matrix"></div>
+
+<!-- EDGE FLASH -->
+<div class="edge-flash" id="edgeFlash"></div>
+
+
+<!-- MAIN CONTENT -->
+
+<div class="alert">
+
+    <div class="warning">
+        ⚠ SYSTEM SECURITY ALERT ⚠
+    </div>
+
+    <h1>
+        YOUR PHONE IS HACKED
+    </h1>
+
+    <div class="line"></div>
+
+
+    <!-- LOADING BAR -->
+
+    <div class="loading-container">
+
+        <div class="loading-bar"></div>
+
+    </div>
+
+
+    <div class="status">
+        UNAUTHORIZED ACCESS DETECTED
+    </div>
+
+</div>
+
+
+<!-- CREATED BY -->
+
+<div class="created">
+    Created by vOlt_er
+</div>
+
+
+<!-- GREEN BALL -->
+
+<div class="ball" id="ball"></div>
+
+
+<script>
+
+/* =====================================================
+   RANDOM BACKGROUND CHARACTERS
+===================================================== */
+
+const matrix =
+    document.getElementById("matrix");
+
+const characters =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ" +
+    "abcdefghijklmnopqrstuvwxyz" +
+    "0123456789" +
+    "!@#$%^&*<>?/\\|[]{}+=-_";
+
+const amount = 150;
+
+
+for(let i=0;i<amount;i++){
+
+    const char =
+        document.createElement("div");
+
+    char.className="char";
+
+    char.textContent =
+        characters[
+            Math.floor(
+                Math.random() *
+                characters.length
+            )
+        ];
+
+    char.style.left =
+        Math.random()*100+"%";
+
+    char.style.top =
+        Math.random()*100+"%";
+
+    char.style.fontSize =
+        (10 + Math.random()*18)+"px";
+
+    char.style.setProperty(
+        "--speed",
+        (.3 + Math.random()*2.5)+"s"
+    );
+
+    char.style.setProperty(
+        "--move",
+        (1 + Math.random()*5)+"s"
+    );
+
+    char.style.setProperty(
+        "--x",
+        (-30 + Math.random()*60)+"px"
+    );
+
+    char.style.setProperty(
+        "--y",
+        (-30 + Math.random()*60)+"px"
+    );
+
+    char.style.animationDelay =
+        (-Math.random()*5)+"s";
+
+    matrix.appendChild(char);
+}
+
+
+/* =====================================================
+   BOUNCING BALL
+===================================================== */
+
+const ball =
+    document.getElementById("ball");
+
+const edgeFlash =
+    document.getElementById("edgeFlash");
+
+
+let x =
+    window.innerWidth / 2;
+
+let y =
+    window.innerHeight / 2;
+
+
+let vx = 0;
+let vy = 0;
+
+let dragging = false;
+
+
+let lastX = 0;
+let lastY = 0;
+let lastTime = 0;
+
+
+const radius = 22;
+
+
+/* UPDATE BALL */
+
+function updateBall(){
+
+    ball.style.left =
+        x+"px";
+
+    ball.style.top =
+        y+"px";
+
+}
+
+updateBall();
+
+
+/* =====================================================
+   TOUCH START
+===================================================== */
+
+ball.addEventListener(
+    "pointerdown",
+    function(e){
+
+        dragging = true;
+
+        ball.setPointerCapture(
+            e.pointerId
+        );
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+        lastTime =
+            performance.now();
+
+        vx = 0;
+        vy = 0;
+
+    }
+);
+
+
+/* =====================================================
+   DRAG
+===================================================== */
+
+ball.addEventListener(
+    "pointermove",
+    function(e){
+
+        if(!dragging) return;
+
+        const now =
+            performance.now();
+
+        const dt =
+            now - lastTime;
+
+
+        if(dt > 0){
+
+            vx =
+                (e.clientX-lastX)
+                /dt*16;
+
+            vy =
+                (e.clientY-lastY)
+                /dt*16;
+
+        }
+
+
+        x = e.clientX;
+        y = e.clientY;
+
+
+        x = Math.max(
+            radius,
+            Math.min(
+                window.innerWidth-radius,
+                x
+            )
+        );
+
+        y = Math.max(
+            radius,
+            Math.min(
+                window.innerHeight-radius,
+                y
+            )
+        );
+
+
+        lastX = e.clientX;
+        lastY = e.clientY;
+
+        lastTime = now;
+
+
+        updateBall();
+
+    }
+);
+
+
+/* =====================================================
+   RELEASE
+===================================================== */
+
+ball.addEventListener(
+    "pointerup",
+    function(){
+
+        dragging = false;
+
+        const maxSpeed = 12;
+
+
+        vx = Math.max(
+            -maxSpeed,
+            Math.min(maxSpeed,vx)
+        );
+
+        vy = Math.max(
+            -maxSpeed,
+            Math.min(maxSpeed,vy)
+        );
+
+    }
+);
+
+
+/* =====================================================
+   EDGE FLASH
+===================================================== */
+
+function flashEdge(side){
+
+    edgeFlash.className =
+        "edge-flash flash-"+side;
+
+
+    setTimeout(
+        function(){
+
+            edgeFlash.className =
+                "edge-flash";
+
+        },
+        100
+    );
+
+}
+
+
+/* =====================================================
+   AUTOMATIC BOUNCING
+===================================================== */
+
+function animate(){
+
+    if(!dragging){
+
+        x += vx;
+        y += vy;
+
+
+        /* LEFT */
+
+        if(x <= radius){
+
+            x = radius;
+
+            vx = Math.abs(vx);
+
+            flashEdge("left");
+
+        }
+
+
+        /* RIGHT */
+
+        if(
+            x >=
+            window.innerWidth-radius
+        ){
+
+            x =
+                window.innerWidth-radius;
+
+            vx = -Math.abs(vx);
+
+            flashEdge("right");
+
+        }
+
+
+        /* TOP */
+
+        if(y <= radius){
+
+            y = radius;
+
+            vy = Math.abs(vy);
+
+            flashEdge("top");
+
+        }
+
+
+        /* BOTTOM */
+
+        if(
+            y >=
+            window.innerHeight-radius
+        ){
+
+            y =
+                window.innerHeight-radius;
+
+            vy = -Math.abs(vy);
+
+            flashEdge("bottom");
+
+        }
+
+
+        updateBall();
+
+    }
+
+
+    requestAnimationFrame(animate);
+
+}
+
+animate();
+
+
+/* =====================================================
+   RESIZE
+===================================================== */
+
+window.addEventListener(
+    "resize",
+    function(){
+
+        x = Math.max(
+            radius,
+            Math.min(
+                window.innerWidth-radius,
+                x
+            )
+        );
+
+        y = Math.max(
+            radius,
+            Math.min(
+                window.innerHeight-radius,
+                y
+            )
+        );
+
+        updateBall();
+
+    }
+);
+
+</script>
+
+</body>
+</html>
